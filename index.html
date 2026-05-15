@@ -775,8 +775,17 @@ function switchPage(page) {
     const btns = document.querySelectorAll('.nav-item');
     if (btns[idx[page]]) btns[idx[page]].classList.add('active');
     document.getElementById('roomsBar').style.display = page === 'jackpot' ? 'flex' : 'none';
+    
+    // Скрываем jackpotPage если мы не на нём
+    if (page !== 'jackpot') {
+        document.getElementById('jackpotPage').style.display = 'none';
+    } else {
+        document.getElementById('jackpotPage').style.display = 'block';
+    }
+    
     if (page === 'wallet') fetchTransactions();
     if (page === 'profile') { updateProfileUI(); fetchBetHistory(); }
+}
 }
 
 // === ЧАТ (серверный) ===
