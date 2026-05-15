@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SJ CASINO</title>
+    <style>
+        :root {
+            --bg: #0a0a12;
+            --card: #14141f;
+            --accent: #b8a9ff;
+            --accent2: #7c6fd4;
+            --text: #e0e0e8;
+            --sub: #666680;
+            --gold: #f0b90b;
+            --green: #5ee7a0;
+            --red: #f87171;
+            --orange: #f59e0b;
+            --blue: #60a5fa;
+            --border: #1e1e2e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .app { width: 100%; max-width: 420px; min-height: 100vh; display: flex; flex-direction: column; padding: 0 12px 100px; position: relative; }
+        .top-divider { display: flex; align-items: center; justify-content: space-between; padding: 10px 4px 6px; border-bottom: 1px solid rgba(255,255,255,.04); min-height: 36px; }
+        .top-left { display: flex; align-items: center; gap: 8px; }
+        .top-logo-placeholder { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: logoGlow 2s infinite alternate; }
+        @keyframes logoGlow { 0% { filter: drop-shadow(0 0 4px rgba(184,169,255,.4)); } 100% { filter: drop-shadow(0 0 12px rgba(240,185,11,.6)); } }
+        .top-right { display: flex; align-items: center; gap: 12px; }
+        .notif-btn { position: relative; background: none; border: none; color: #888; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
+        .notif-btn svg { width: 18px; height: 18px; stroke: #888; fill: none; }
+        .notif-badge { position: absolute; top: -2px; right: -2px; background: var(--red); color: #fff; font-size: 8px; font-weight: 700; width: 14px; height: 14px; border-radius: 50%; display: none; align-items: center; justify-content: center; }
+        .notif-badge.visible { display: flex; }
+        .burger-btn { display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 4px; background: none; border: none; }
+        .burger-btn span { display: block; width: 20px; height: 2px; background: #888; border-radius: 2px; transition: .2s; }
+        .burger-btn:active span { background: #c4b5fd; }
+        .notif-panel { position: fixed; top: 0; right: -320px; width: 300px; height: 100vh; background: #0f0f1a; border-left: 1px solid var(--border); z-index: 210; transition: right .3s ease; display: flex; flex-direction: column; padding: 12px; box-shadow: -5px 0 30px rgba(0,0,0,.5); }
+        .notif-panel.open { right: 0; }
+        .notif-panel .panel-header h3 { font-size: 14px; color: var(--accent); }
+        .notif-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
+        .notif-item { background: #1a1a2e; border-radius: 10px; padding: 8px 10px; font-size: 10px; color: #ccc; border-left: 3px solid var(--accent2); }
+        .notif-item .notif-time { font-size: 8px; color: var(--sub); margin-top: 2px; }
+        .rooms { display: flex; gap: 5px; margin: 8px 0; }
+        .room-tab { flex: 1; background: #10101a; border: 1px solid var(--border); color: #555; padding: 9px 3px; border-radius: 10px; font-size: 10px; cursor: pointer; text-align: center; transition: .2s; font-weight: 600; position: relative; }
+        .room-tab.active { background: #1a1a2e; color: var(--accent); border-color: var(--accent2); }
+        .room-tab .limits { font-size: 8px; color: #555; margin-top: 2px; }
+        .room-tab.active .limits { color: #888; }
+        .jackpot-header { text-align: center; margin-bottom: 2px; }
+        .jackpot-title { font-size: 18px; font-weight: 800; color: #fff; }
+        .jackpot-subtitle { font-size: 10px; color: var(--sub); }
+        .jackpot-bank { font-size: 26px; font-weight: 900; color: var(--gold); margin: 2px 0; }
+        .jackpot-players { font-size: 10px; color: var(--sub); margin-bottom: 6px; }
+        .timer-bar { background: #10101a; border-radius: 10px; height: 5px; margin: 6px 0; overflow: hidden; }
+        .timer-fill { height: 100%; background: var(--accent2); border-radius: 10px; transition: width 1s linear; }
+        .timer-text { text-align: center; font-size: 10px; color: var(--sub); margin-bottom: 4px; }
+        .waiting-text { text-align: center; font-size: 12px; color: var(--sub); margin: 10px 0; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+        .slot-container { position: relative; width: 100%; height: 90px; overflow: hidden; margin: 2px 0; background: rgba(0,0,0,.15); border-radius: 8px; }
+        .slot-pointer { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; z-index: 10; background: rgba(184,169,255,.3); box-shadow: 0 0 8px 1px rgba(184,169,255,.15); border-radius: 2px; }
+        .slot-pointer::after { content: ''; position: absolute; top: -7px; left: -5px; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 10px solid rgba(184,169,255,.3); }
+        .slot-pointer::before { content: ''; position: absolute; bottom: -7px; left: -5px; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid rgba(184,169,255,.3); }
+        .slot-track { display: flex; gap: 0; position: absolute; left: 0; top: 8px; }
+        .slot-item { flex-shrink: 0; width: 40px; height: 50px; display: flex; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,.06); border-left: 1px solid rgba(0,0,0,.3); }
+        .slot-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; transition: transform .6s ease,opacity .5s ease; overflow: hidden; }
+        .slot-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .slot-avatar.flip { transform: rotateX(360deg); }
+        .slot-avatar.dimmed { opacity: .25; }
+        .winner-info { display: none; text-align: center; padding: 8px 0 4px; animation: fadeInUp .4s ease; }
+        .winner-info.active { display: block; }
+        .winner-info .winner-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .winner-info .winner-mini-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; transition: transform .6s ease; overflow: hidden; }
+        .winner-info .winner-mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .winner-info .winner-mini-avatar.flip { transform: rotateX(360deg); }
+        .winner-info .winner-text { text-align: left; }
+        .winner-info .winner-text .w-name { font-size: 14px; font-weight: 700; color: #fff; }
+        .winner-info .winner-text .w-chance { font-size: 10px; color: var(--sub); }
+        .winner-info .winner-amount { font-size: 18px; font-weight: 900; color: var(--gold); margin-left: auto; }
+        @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+        .bet-area { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
+        .bet-input { flex: 1; background: #0f0f1a; border: 1px solid var(--border); color: #fff; padding: 10px 12px; border-radius: 10px; font-size: 13px; text-align: center; }
+        .bet-input:focus { outline: none; border-color: var(--accent2); }
+        .bet-btn { background: var(--accent2); color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 18px; cursor: pointer; transition: .2s; }
+        .bet-btn:active { background: #6a5fc0; }
+        .my-bet-info { font-size: 9px; color: var(--sub); margin-top: 3px; padding: 0 2px; display: flex; flex-direction: column; gap: 2px; }
+        .my-bet-info .bet-row { display: flex; justify-content: space-between; }
+        .my-bet-info .bet-row span { color: #999; }
+        .my-bet-info .ticket-row { display: flex; justify-content: space-between; color: var(--accent); font-size: 9px; }
+        .limit-info { font-size: 9px; color: var(--sub); text-align: right; margin-top: 2px; }
+        .history-block { margin-top: 10px; background: var(--card); border-radius: 12px; padding: 10px; border: 1px solid var(--border); max-height: 130px; overflow-y: auto; }
+        .history-block h4 { font-size: 11px; color: var(--sub); margin-bottom: 6px; text-align: center; }
+        .history-header { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 8px; color: #555; border-bottom: 1px solid rgba(255,255,255,.05); margin-bottom: 4px; }
+        .history-header .hh-avatar { width: 20px; flex-shrink: 0; }
+        .history-header .hh-name { flex: 1; text-align: left; }
+        .history-header .hh-tickets { width: 70px; text-align: center; }
+        .history-header .hh-chance { width: 40px; text-align: right; }
+        .history-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 9px; border-bottom: 1px solid rgba(255,255,255,.03); }
+        .history-item.win { background: rgba(94,231,160,.06); }
+        .history-item.lose { background: rgba(248,113,113,.06); }
+        .history-avatar { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden; }
+        .history-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .history-name { flex: 1; color: #ccc; text-align: left; }
+        .history-range { color: var(--accent); font-size: 9px; width: 70px; text-align: center; }
+        .history-chance { color: var(--sub); width: 40px; text-align: right; }
+        .winners-block { margin-top: 10px; background: var(--card); border-radius: 12px; padding: 10px; border: 1px solid var(--border); border-top: 3px solid var(--accent2); }
+        .winners-block h4 { font-size: 11px; color: var(--sub); margin-bottom: 6px; text-align: center; }
+        .winner-entry { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 9px; border-bottom: 1px solid rgba(255,255,255,.03); color: #ccc; }
+        .winner-entry:last-child { border-bottom: none; }
+        .winner-entry .w-name { flex: 1; }
+        .winner-entry .w-amount { color: var(--gold); }
+        .winner-entry .w-room { color: var(--sub); font-size: 8px; margin-left: 6px; }
+        .chat-panel, .menu-panel, .notif-panel, .modal-overlay { position: fixed; top: 0; height: 100vh; z-index: 200; transition: right .3s ease; display: flex; flex-direction: column; padding: 12px; box-shadow: -5px 0 30px rgba(0,0,0,.5); }
+        .chat-panel { right: -320px; width: 300px; background: #0f0f1a; border-left: 1px solid var(--border); }
+        .chat-panel.open { right: 0; }
+        .menu-panel { right: -320px; width: 300px; background: #0f0f1a; border-left: 1px solid var(--border); }
+        .menu-panel.open { right: 0; }
+        .modal-overlay { left: 0; right: 0; background: rgba(0,0,0,.8); align-items: center; justify-content: center; z-index: 350; display: none; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: #1c1c24; border-radius: 16px; padding: 20px; border: 1px solid var(--border); width: 300px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-box h4 { color: var(--accent); margin-bottom: 8px; text-align: center; }
+        .modal-close-btn { position: absolute; top: 8px; right: 12px; background: none; border: none; color: #888; font-size: 22px; cursor: pointer; z-index: 10; }
+        .modal-close-btn:hover { color: #fff; }
+        .modal-box input, .modal-box select { width: 100%; background: #0f0f1a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 10px; font-size: 14px; text-align: center; margin-bottom: 8px; }
+        .modal-box input:focus, .modal-box select:focus { outline: none; border-color: var(--accent2); }
+        .modal-box select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23888'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+        .modal-box .modal-btn { width: 100%; background: var(--accent2); color: #fff; border: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 4px; }
+        .modal-box .modal-btn:active { background: #6a5fc0; }
+        .modal-box .modal-hint { font-size: 10px; color: var(--sub); text-align: center; margin-bottom: 8px; }
+        .modal-box .modal-info { font-size: 9px; color: var(--sub); text-align: center; margin-top: 6px; }
+        .requisite-row { background: #0f0f1a; padding: 10px; border-radius: 10px; margin: 6px 0; text-align: center; cursor: pointer; }
+        .requisite-row:active { background: #1a1a2e; }
+        .requisite-label { font-size: 9px; color: var(--sub); }
+        .requisite-value { font-size: 14px; color: #fff; font-weight: 600; margin-top: 2px; }
+        .timer-row { font-size: 12px; color: var(--orange); text-align: center; margin: 8px 0; }
+        .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .panel-header h3 { font-size: 14px; color: var(--accent); }
+        .panel-close { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; }
+        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; position: relative; padding-bottom: 40px; }
+        .chat-scroll-btn { position: sticky; bottom: 4px; left: 50%; transform: translateX(-50%); width: 32px; height: 32px; background: var(--accent2); border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 5; box-shadow: 0 2px 10px rgba(0,0,0,.5); }
+        .chat-scroll-btn.visible { display: flex; }
+        .chat-scroll-btn svg { width: 16px; height: 16px; stroke: #fff; }
+        .menu-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
+        .chat-msg { display: flex; gap: 6px; align-items: flex-start; }
+        .chat-msg-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden; }
+        .chat-msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .chat-msg-body { background: #1a1a2e; border-radius: 10px; padding: 6px 10px; font-size: 11px; color: #ddd; max-width: 200px; word-break: break-word; }
+        .chat-msg-body.my-msg { background: #2a2a3e; border: 1px solid #3a3a55; }
+        .chat-msg-body .chat-reply-to { font-size: 9px; color: var(--accent); margin-bottom: 2px; }
+        .chat-msg-body .chat-author { font-size: 9px; color: var(--sub); margin-bottom: 2px; }
+        .chat-msg-body .chat-author.admin { color: var(--red); }
+        .chat-msg-body .chat-author.moder { color: var(--orange); }
+        .chat-input-row { display: flex; gap: 6px; margin-top: 8px; }
+        .chat-input-row input { flex: 1; background: #1a1a2e; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 8px; font-size: 11px; }
+        .chat-input-row input:focus { outline: none; border-color: var(--accent2); }
+        .chat-input-row button { background: var(--accent2); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; }
+        .chat-input-row button:active { background: #6a5fc0; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 199; }
+        .overlay.active { display: block; }
+        .menu-item { padding: 12px; border-radius: 10px; background: #14141f; border: 1px solid var(--border); color: #ccc; font-size: 12px; cursor: pointer; transition: .2s; text-align: left; width: 100%; }
+        .menu-item:active { background: #1a1a2e; color: var(--accent); }
+        .menu-section { margin-bottom: 8px; }
+        .menu-section h4 { font-size: 10px; color: var(--sub); margin-bottom: 4px; padding-left: 4px; }
+        .info-text { font-size: 11px; color: #ccc; line-height: 1.5; }
+        .info-text strong { color: var(--accent); }
+        .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 420px; background: #0d0d18; display: flex; justify-content: space-around; padding: 6px 6px 18px; border-top: 1px solid var(--border); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 8px; color: #444; cursor: pointer; transition: .2s; background: none; border: none; padding: 4px 6px; border-radius: 10px; position: relative; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { width: 18px; height: 18px; }
+        .nav-icon svg { width: 100%; height: 100%; }
+        .nav-item.active .nav-icon svg path, .nav-item.active .nav-icon svg circle, .nav-item.active .nav-icon svg rect { stroke: var(--accent); }
+        .balance-bubble { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); background: #1a1a2e; border: 1px solid var(--accent2); border-bottom: none; border-radius: 12px 12px 0 0; padding: 4px 10px; font-size: 10px; font-weight: 700; color: var(--gold); white-space: nowrap; box-shadow: 0 -2px 10px rgba(0,0,0,.3); }
+        .wallet-page, .bonus-page, .profile-page { display: none; }
+        .wallet-page.active, .bonus-page.active, .profile-page.active { display: block; overflow-y: auto; padding-bottom: 100px; }
+        .wallet-card, .bonus-card, .profile-card { background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .wallet-card h3, .bonus-card h3, .profile-card h3 { font-size: 14px; margin-bottom: 10px; color: var(--accent); font-weight: 600; }
+        .wallet-balance-row { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin: 8px 0; }
+        .wallet-balance-amount { font-size: 28px; font-weight: 900; color: var(--gold); line-height: 1; }
+        .wallet-balance-label { font-size: 11px; color: var(--sub); }
+        .wallet-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .wallet-action-btn { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--accent); padding: 11px; border-radius: 10px; font-weight: 600; font-size: 12px; cursor: pointer; text-align: center; transition: .2s; }
+        .wallet-action-btn:active { background: #2a2a3a; }
+        .wallet-transactions { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .wallet-transactions h4 { font-size: 11px; color: var(--sub); margin-bottom: 6px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .tx-item { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.03); }
+        .tx-row { display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
+        .tx-id { color: var(--accent); }
+        .tx-amount { color: #fff; font-weight: 600; }
+        .tx-date { color: var(--sub); font-size: 9px; }
+        .tx-status { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 6px; }
+        .tx-status.processing { color: var(--orange); background: rgba(245,158,11,.1); }
+        .tx-status.success { color: var(--green); background: rgba(94,231,160,.1); }
+        .tx-status.cancelled { color: var(--red); background: rgba(248,113,113,.1); }
+        .tx-status.pending { color: var(--blue); background: rgba(96,165,250,.1); }
+        .withdraw-fee-info { font-size: 10px; color: var(--sub); margin: 3px 0; }
+        .withdraw-total-info { font-size: 13px; color: #fff; margin: 6px 0; text-align: center; }
+        .withdraw-total-info strong { color: var(--green); }
+        .promo-row { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .promo-input { width: 80%; background: #0f0f1a; border: 1px solid var(--border); color: #fff; padding: 10px 12px; border-radius: 10px; font-size: 13px; text-align: center; }
+        .promo-input:focus { outline: none; border-color: var(--accent2); }
+        .promo-btn { background: var(--accent2); color: #fff; border: none; padding: 8px 20px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: .2s; }
+        .promo-btn:active { background: #6a5fc0; }
+        .bonus-msg { font-size: 10px; text-align: center; margin-top: 4px; min-height: 14px; }
+        .bonus-subscribe-btn { width: 80%; margin: 0 auto; background: #2a7; color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .bonus-subscribe-btn:active { background: #1f8a5a; }
+        .bonus-subscribe-btn:disabled { opacity: .4; cursor: default; }
+        .bonus-footer-text { font-size: 10px; color: #555; text-align: center; margin-top: 10px; }
+        .profile-avatar-block { display: flex; flex-direction: column; align-items: center; margin-bottom: 16px; }
+        .profile-avatar-wrap { position: relative; }
+        .profile-avatar { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: #fff; overflow: hidden; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-edit-avatar { position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; background: var(--accent2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; color: #fff; border: 2px solid var(--bg); }
+        .profile-nick { font-size: 16px; font-weight: 700; color: #fff; margin: 8px 0 4px; display: flex; align-items: center; gap: 6px; }
+        .profile-edit-nick { width: 18px; height: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .profile-rank { font-size: 10px; color: var(--gold); margin-bottom: 8px; text-align: center; }
+        .rank-section { margin: 4px 0; }
+        .rank-label { font-size: 9px; color: var(--sub); margin-bottom: 3px; }
+        .rank-bar { width: 100%; height: 18px; background: #10101a; border-radius: 9px; overflow: hidden; margin-bottom: 6px; position: relative; }
+        .rank-fill-bets { height: 100%; background: var(--green); border-radius: 9px; transition: width .8s ease; position: relative; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+        .rank-fill-dep { height: 100%; background: #60a5fa; border-radius: 9px; transition: width .8s ease; position: relative; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+        .rank-bar-text { font-size: 8px; color: #000; font-weight: 700; white-space: nowrap; }
+        .profile-stats { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+        .profile-stat-row { display: flex; flex-direction: column; padding: 8px 12px; background: rgba(0,0,0,.2); border-radius: 10px; cursor: pointer; }
+        .profile-stat-header { display: flex; justify-content: space-between; align-items: center; }
+        .profile-stat-lbl { font-size: 10px; color: var(--sub); display: flex; align-items: center; gap: 4px; }
+        .profile-stat-val { font-size: 15px; font-weight: 800; color: #fff; }
+        .profile-stat-detail { display: none; font-size: 10px; color: #aaa; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,.05); }
+        .profile-stat-detail.open { display: block; }
+        .profile-history-block { margin-top: 10px; max-height: 200px; overflow-y: auto; }
+        .profile-history-block h4 { font-size: 11px; color: var(--sub); margin-bottom: 6px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .flash-bg { animation: flashGold .4s ease 3; }
+        @keyframes flashGold { 0%,100% { background: transparent; } 50% { background: rgba(240,185,11,.08); } }
+        .reply-preview { background: #1a1a2e; border-radius: 8px; padding: 4px 8px; font-size: 9px; color: var(--sub); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .reply-preview span { color: var(--accent); }
+        .reply-preview button { background: none; border: none; color: #888; cursor: pointer; font-size: 12px; margin-left: auto; }
+        .captcha-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.8); z-index: 350; align-items: center; justify-content: center; }
+        .captcha-overlay.active { display: flex; }
+        .captcha-box { background: #1c1c24; border-radius: 16px; padding: 20px; text-align: center; border: 1px solid var(--border); width: 280px; }
+        .captcha-box h4 { color: var(--accent); margin-bottom: 8px; }
+        .captcha-question { font-size: 20px; font-weight: 800; color: #fff; margin: 12px 0; }
+        .captcha-answer { width: 100%; background: #0f0f1a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 10px; font-size: 16px; text-align: center; margin-bottom: 8px; }
+        .captcha-answer:focus { outline: none; border-color: var(--accent2); }
+        .captcha-submit { background: var(--accent2); color: #fff; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
+        .admin-panel { position: fixed; top: 0; right: -360px; width: 340px; height: 100vh; background: #0f0f1a; border-left: 1px solid var(--border); z-index: 400; transition: right .3s ease; display: flex; flex-direction: column; padding: 12px; box-shadow: -5px 0 30px rgba(0,0,0,.5); overflow-y: auto; }
+        .admin-panel.open { right: 0; }
+        .admin-tabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+        .admin-tab { flex: 1; min-width: fit-content; background: #1a1a2e; border: 1px solid var(--border); color: #888; padding: 6px 4px; border-radius: 8px; font-size: 9px; cursor: pointer; text-align: center; transition: .2s; }
+        .admin-tab.active { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+    </style>
+</head>
+<body>
+<div class="app" id="appContainer">
+    <div class="top-divider">
+        <div class="top-left"><div class="top-logo-placeholder">SJ</div></div>
+        <div class="top-right">
+            <button class="notif-btn" onclick="toggleNotif()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                <span class="notif-badge" id="notifBadge">0</span>
+            </button>
+            <button class="burger-btn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+        </div>
+    </div>
+    <div class="rooms" id="roomsBar">
+        <button class="room-tab active" onclick="switchRoom('bomj')">Бомж<div class="limits">1–50</div><span class="bet-count" id="countBomj">0</span></button>
+        <button class="room-tab" onclick="switchRoom('classic')">Классик<div class="limits">10–500</div><span class="bet-count" id="countClassic">0</span></button>
+        <button class="room-tab" onclick="switchRoom('major')">Мажор<div class="limits">250–5000</div><span class="bet-count" id="countMajor">0</span></button>
+        <button class="room-tab" onclick="switchRoom('hyena')">Гиена<div class="limits">5000–25000</div><span class="bet-count" id="countHyena">0</span></button>
+    </div>
+    <div id="jackpotPage" style="display:block;">
+        <div class="jackpot-header"><div class="jackpot-title" id="roomTitle">Бомж</div><div class="jackpot-subtitle">Общий банк</div><div class="jackpot-bank" id="totalBank">0</div><div class="jackpot-players" id="playerCount">Участников: 0</div></div>
+        <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:0%"></div></div>
+        <div class="timer-text" id="timerText">До розыгрыша: 0:30</div>
+        <div class="slot-container" id="slotContainer"><div class="slot-pointer"></div><div class="slot-track" id="slotTrack"></div></div>
+        <div class="winner-info" id="winnerInfo">
+            <div class="winner-row">
+                <div class="winner-mini-avatar" id="winnerMiniAvatar"></div>
+                <div class="winner-text"><div class="w-name" id="winnerNameText"></div><div class="w-chance" id="winnerChanceText"></div></div>
+                <div class="winner-amount" id="winnerAmountText"></div>
+            </div>
+        </div>
+        <div class="bet-area"><input class="bet-input" type="number" id="betAmount" placeholder="Сумма ставки" min="1" inputmode="decimal"><button class="bet-btn" onclick="placeBet()">&rarr;</button></div>
+        <div class="my-bet-info">
+            <div class="bet-row"><span>Твоя ставка: <strong id="myBetDisplay">0</strong> монет</span><span>Шанс: <strong id="myChance">0%</strong></span></div>
+            <div class="ticket-row">Ваши билеты: <strong id="myTicketRange">0</strong></div>
+        </div>
+        <div class="limit-info">Лимит: <span id="limitDisplay">0/50</span></div>
+        <div class="history-block">
+            <h4>Участники:</h4>
+            <div class="history-header"><span class="hh-avatar"></span><span class="hh-name">Имя</span><span class="hh-tickets">Билеты:</span><span class="hh-chance">Шанс:</span></div>
+            <div id="historyList"><p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет ставок</p></div>
+        </div>
+        <div class="winners-block"><h4>Последние победители</h4><div id="winnersList"><p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет победителей</p></div></div>
+    </div>
+    <div id="bonusPage" style="display:none;">
+        <div class="bonus-card">
+            <h3>Бонус</h3>
+            <p style="font-size:11px;color:var(--sub);text-align:center;margin-bottom:10px">Активируй промокод</p>
+            <div class="promo-row"><input class="promo-input" type="text" id="promoInput" placeholder="Введи промокод"><button class="promo-btn" onclick="startPromoCaptcha()">Активировать</button></div>
+            <p class="bonus-msg" id="promoMsg"></p>
+            <hr style="border-color:var(--border);margin:14px 0">
+            <p style="font-size:11px;color:var(--sub);text-align:center;margin-bottom:10px">Подпишись на канал и получи +10 монет</p>
+            <button class="bonus-subscribe-btn" id="subscribeBtn" onclick="claimSubscribeBonus()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v10H8l-4 4z"/></svg> Подписаться</button>
+            <p class="bonus-msg" id="subscribeMsg"></p>
+            <p class="bonus-footer-text">Следите за нами в Telegram что бы не упускать халяву!</p>
+        </div>
+    </div>
+    <div id="walletPage" style="display:none;">
+        <div class="wallet-card">
+            <h3>Баланс</h3>
+            <div class="wallet-balance-row"><span class="wallet-balance-amount" id="walletBalance">0</span><span class="wallet-balance-label">монет в кошельке</span></div>
+            <div class="wallet-actions"><button class="wallet-action-btn primary" onclick="openDepositModal()">Пополнить</button><button class="wallet-action-btn" onclick="openWithdrawModal()">Вывести</button></div>
+            <div class="wallet-transactions"><h4 onclick="handleTxHeaderClick()">История транзакций <span style="font-size:10px;color:var(--accent)" id="txToggleIcon">▼</span></h4><div id="walletTxList" style="display:block"><p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет транзакций</p></div></div>
+        </div>
+    </div>
+    <div id="profilePage" style="display:none;">
+        <div class="profile-card">
+            <h3>Профиль</h3>
+            <div class="profile-avatar-block">
+                <div class="profile-avatar-wrap">
+                    <div class="profile-avatar" id="profileAvatar" style="background:#b8a9ff"><span id="profileAvatarTxt">S</span></div>
+                    <div class="profile-edit-avatar" onclick="document.getElementById('avatarFileInput').click()">✎<input type="file" id="avatarFileInput" accept="image/*" onchange="uploadAvatar(event)" style="display:none"></div>
+                </div>
+                <div class="profile-nick"><span id="profileNickname">Player</span><span class="profile-edit-nick" onclick="openNickModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3l4 4-14 14H3v-4L17 3z"/></svg></span></div>
+                <div class="profile-rank" id="profileRank">Ранг: Новичок</div>
+                <div class="rank-section"><div class="rank-label" id="rankBetsLabel">Осталось ставок до следующего ранга: 0%</div><div class="rank-bar"><div class="rank-fill-bets" id="rankFillBets" style="width:0%"><span class="rank-bar-text" id="rankBetsText">1000</span></div></div></div>
+                <div class="rank-section"><div class="rank-label" id="rankDepLabel">Депозитов: 0%</div><div class="rank-bar"><div class="rank-fill-dep" id="rankFillDep" style="width:0%"><span class="rank-bar-text" id="rankDepText">500</span></div></div></div>
+            </div>
+            <div class="profile-stats">
+                <div class="profile-stat-row" onclick="toggleStatDetail(this)"><div class="profile-stat-header"><span class="profile-stat-lbl">Всего ставок <span style="font-size:10px;color:var(--accent)" class="stat-arrow">▼</span></span><span class="profile-stat-val" id="statTotalBets">▼</span></div><div class="profile-stat-detail">Количество ставок: <strong id="statTotalBetsDetail">0</strong></div></div>
+                <div class="profile-stat-row" onclick="toggleStatDetail(this)"><div class="profile-stat-header"><span class="profile-stat-lbl">Монет поставлено <span style="font-size:10px;color:var(--accent)" class="stat-arrow">▼</span></span><span class="profile-stat-val" id="statTotalWagered">▼</span></div><div class="profile-stat-detail">Сумма монет: <strong id="statTotalWageredDetail">0</strong></div></div>
+                <div class="profile-stat-row" onclick="toggleStatDetail(this)"><div class="profile-stat-header"><span class="profile-stat-lbl">Мин. шанс <span style="font-size:10px;color:var(--accent)" class="stat-arrow">▼</span></span><span class="profile-stat-val" id="statLowestChance">▼</span></div><div class="profile-stat-detail">Минимальный шанс: <strong id="statLowestChanceDetail">-</strong></div></div>
+                <div class="profile-stat-row" onclick="toggleStatDetail(this)"><div class="profile-stat-header"><span class="profile-stat-lbl">Депозит <span style="font-size:10px;color:var(--accent)" class="stat-arrow">▼</span></span><span class="profile-stat-val" id="statDeposit">▼</span></div><div class="profile-stat-detail">Сумма депозитов: <strong id="statDepositDetail">0</strong></div></div>
+            </div>
+            <div class="profile-history-block"><h4 onclick="toggleProfileHistory()">Моя история ставок <span style="font-size:10px;color:var(--accent)" id="profileHistoryArrow">▼</span></h4><div id="profileHistoryList" style="display:block"><p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет истории</p></div></div>
+        </div>
+    </div>
+    <div class="overlay" id="chatOverlay" onclick="closeAllPanels()"></div>
+    <div class="chat-panel" id="chatPanel">
+        <div class="panel-header"><h3>Чат</h3><button class="panel-close" onclick="toggleChat()">&times;</button></div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-scroll-btn" id="chatScrollBtn" onclick="scrollChatToBottom()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+        <div class="reply-preview hidden" id="replyPreview"><span id="replyText"></span><button onclick="cancelReply()">&times;</button></div>
+        <div class="chat-input-row"><input type="text" id="chatInput" placeholder="Сообщение..." maxlength="30"><button onclick="sendMessage()">&rarr;</button></div>
+    </div>
+    <div class="menu-panel" id="menuPanel">
+        <div class="panel-header"><h3>Меню</h3><button class="panel-close" onclick="toggleMenu()">&times;</button></div>
+        <div class="menu-content" id="menuContent">
+            <div class="menu-section"><h4>Информация</h4><button class="menu-item" onclick="showRanksModal()">Ранги</button></div>
+            <div class="menu-section" style="margin-top:auto"><button class="menu-item" onclick="showInfoModal('rules')">Правила</button><button class="menu-item" onclick="showInfoModal('faq')">Ответы на вопросы</button><button class="menu-item" onclick="showInfoModal('support')">Поддержка</button></div>
+        </div>
+    </div>
+    <div class="notif-panel" id="notifPanel">
+        <div class="panel-header"><h3>Уведомления</h3><button class="panel-close" onclick="toggleNotif()">&times;</button></div>
+        <div class="notif-list" id="notifList"><p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет уведомлений</p></div>
+    </div>
+    <div class="modal-overlay" id="nickModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeNickModal()">&times;</button>
+            <h4>Смена ника</h4>
+            <p class="modal-hint" id="nickModalHint">Первая смена бесплатно</p>
+            <input type="text" id="nickModalInput" placeholder="Введи новый ник" maxlength="12">
+            <button class="modal-btn" onclick="saveNickname()">Сохранить</button>
+            <button class="modal-btn" style="background:transparent;border:1px solid var(--border);color:#888;margin-top:6px" onclick="closeNickModal()">Отмена</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="withdrawModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeWithdrawModal()">&times;</button>
+            <h4>Вывод средств</h4>
+            <p class="modal-hint">Минимум: 1500 монет</p>
+            <input type="number" id="withdrawAmount" placeholder="Сумма" min="1500" oninput="updateWithdrawInfo()">
+            <select id="withdrawMethod" onchange="onWithdrawMethodChange()">
+                <option value="">Выберите способ вывода</option>
+                <option value="sbp">СБП (Система быстрых платежей)</option>
+                <option value="card">Банковская карта</option>
+                <option value="usdt">USDT TRC-20</option>
+                <option value="ton">TON</option>
+                <option value="cryptobot">Crypto Bot</option>
+            </select>
+            <div id="withdrawMethodDetails" class="hidden"></div>
+            <div id="withdrawFeeDetails" class="hidden"><div class="withdraw-fee-info" id="withdrawFeeText"></div><div class="withdraw-total-info">К получению: <strong id="withdrawTotalAmount">0</strong> монет</div></div>
+            <button class="modal-btn" onclick="requestWithdraw()">Вывести</button>
+            <p style="font-size:10px;color:var(--sub);margin-top:6px;text-align:center;min-height:14px" id="withdrawMsg"></p>
+        </div>
+    </div>
+    <div class="modal-overlay" id="depositModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeDepositModal()">&times;</button>
+            <h4>Пополнение</h4>
+            <select id="depositMethod" onchange="onDepositMethodChange()">
+                <option value="">Выберите способ пополнения</option>
+                <option value="sbp">СБП (от 1000₽)</option>
+                <option value="card">Банковская карта (от 3000₽)</option>
+                <option value="ton">TON (от 5 TON)</option>
+                <option value="usdt">USDT TRC-20 (от 10$)</option>
+            </select>
+            <input type="number" id="depositAmount" placeholder="Сумма пополнения">
+            <div id="depositInfo" class="modal-info"></div>
+            <button class="modal-btn" onclick="startDepositProcess()">Пополнить</button>
+            <p style="font-size:10px;color:var(--sub);margin-top:6px;text-align:center;min-height:14px" id="depositMsg"></p>
+        </div>
+    </div>
+    <div class="modal-overlay" id="depositProcessModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeDepositProcessModal()">&times;</button>
+            <h4 id="depositProcessTitle">Подбираем реквизиты...</h4>
+            <div id="depositProcessContent" style="text-align:center;color:var(--sub);font-size:12px;padding:20px">Пожалуйста, подождите</div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="depositDetailsModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeDepositDetailsModal()">&times;</button>
+            <h4 id="depositDetailsTitle">Реквизиты</h4>
+            <div id="depositDetailsContent"></div>
+            <div class="timer-row" id="depositTimer"></div>
+            <button class="modal-btn" id="depositPayBtn" onclick="confirmDepositPayment()">Я оплатил</button>
+            <button class="modal-btn" style="background:transparent;border:1px solid var(--border);color:#888;margin-top:6px" id="depositCloseBtn" onclick="closeDepositDetailsModal()">Закрыть</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="depositSuccessModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeDepositSuccessModal()">&times;</button>
+            <h4>Проверяем платёж</h4>
+            <p style="text-align:center;color:var(--sub);font-size:12px;padding:20px">Уже ищем ваш платеж, он будет зачислен автоматически.</p>
+            <button class="modal-btn" onclick="closeDepositSuccessModal()">Закрыть</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="infoModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeInfoModal()">&times;</button>
+            <h4 id="infoModalTitle"></h4>
+            <div id="infoModalContent" class="info-text"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="ranksModal">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeRanksModal()">&times;</button>
+            <h4>Таблица рангов</h4>
+            <div id="ranksContent" style="font-size:10px;color:#ccc;"></div>
+            <p style="font-size:9px;color:var(--sub);margin-top:8px;text-align:center">Бонус за ранг начисляется автоматически при его достижении.</p>
+        </div>
+    </div>
+    <div class="captcha-overlay" id="captchaOverlay">
+        <div class="captcha-box"><h4>Проверка</h4><p style="color:var(--sub);font-size:12px">Реши пример для активации</p><div class="captcha-question" id="captchaQuestion"></div><input class="captcha-answer" type="number" id="captchaAnswer" placeholder="Ответ"><button class="captcha-submit" onclick="submitCaptcha()">Подтвердить</button></div>
+    </div>
+    <div class="admin-panel" id="adminPanel">
+        <div class="panel-header"><h3>Админ-панель</h3><button class="panel-close" onclick="closeAdminPanel()">&times;</button></div>
+        <div class="admin-tabs"><button class="admin-tab active" onclick="switchAdminTab('logs', this)">Логи</button><button class="admin-tab" onclick="switchAdminTab('users', this)">Юзеры</button><button class="admin-tab" onclick="switchAdminTab('requests', this)">Заявки</button><button class="admin-tab" onclick="switchAdminTab('bots', this)">Боты</button><button class="admin-tab" onclick="switchAdminTab('requisites', this)">Реквизиты</button><button class="admin-tab" onclick="switchAdminTab('broadcast', this)">Рассылка</button></div>
+        <div id="adminContent" style="font-size:10px;color:#ccc;flex:1;overflow-y:auto"></div>
+    </div>
+    <div class="nav">
+        <button class="nav-item active" onclick="switchPage('jackpot')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/></svg></span>Jackpot</button>
+        <button class="nav-item" onclick="switchPage('bonus')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M20 12v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8"/><path d="M12 2v18"/><path d="M4 8l8-6 8 6"/></svg></span>Бонус</button>
+        <button class="nav-item" onclick="switchPage('wallet')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><circle cx="12" cy="12" r="4"/><line x1="2" y1="7" x2="22" y2="7"/></svg></span>Кошелёк<span class="balance-bubble" id="navBalance">0</span></button>
+        <button class="nav-item" id="chatNavBtn" onclick="toggleChat()"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M4 4h16v10H8l-4 4z"/></svg></span>Чат</button>
+        <button class="nav-item" onclick="switchPage('profile')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg></span>Профиль</button>
+    </div>
+</div>
+
+<script>
+// === Telegram Mini App ===
+const tg = window.Telegram?.WebApp;
+if (tg) {
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor('secondary_bg_color');
+    tg.isClosingConfirmationEnabled = true;
+}
+
+const API = 'https://sj-server-1.onrender.com';
+let userId = null, username = 'Player';
+if (tg?.initDataUnsafe?.user) {
+    userId = tg.initDataUnsafe.user.id;
+    username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name || 'Player';
+} else {
+    userId = 'demo_' + Math.floor(Math.random() * 1000000);
+}
+
+const ROOMS = {
+    bomj: { name: 'Бомж', min: 1, max: 50 },
+    classic: { name: 'Классик', min: 10, max: 500 },
+    major: { name: 'Мажор', min: 250, max: 5000 },
+    hyena: { name: 'Гиена', min: 5000, max: 25000 }
+};
+const COLORS = ['#f87171','#fb923c','#fbbf24','#a3e635','#34d399','#22d3ee','#60a5fa','#a78bfa','#f472b6','#e879f9'];
+const TICKETS_PER_COIN = 10, AVATAR_STEP = 10, HOUSE_FEE = 0.10;
+const RANKS = [
+    { name: 'Новичок', bets: 0, dep: 0, bonus: 0 },
+    { name: 'Любитель', bets: 1000, dep: 500, bonus: 50 },
+    { name: 'Игрок', bets: 5000, dep: 1500, bonus: 100 },
+    { name: 'Хайроллер', bets: 15000, dep: 5000, bonus: 300 },
+    { name: 'Элита', bets: 50000, dep: 15000, bonus: 800 },
+    { name: 'Легенда', bets: 150000, dep: 50000, bonus: 1500 },
+    { name: 'Король', bets: 500000, dep: 150000, bonus: 3000 },
+    { name: 'Бог', bets: 1500000, dep: 500000, bonus: 10000 }
+];
+
+let currentRoom = 'bomj', balance = 0, myBet = 0, isSpinning = false, spinOffset = 0;
+let roomState = {
+    bomj: { bank: 0, players: [], timer: 30, maxTimer: 30, lastWinner: null },
+    classic: { bank: 0, players: [], timer: 30, maxTimer: 30, lastWinner: null },
+    major: { bank: 0, players: [], timer: 30, maxTimer: 30, lastWinner: null },
+    hyena: { bank: 0, players: [], timer: 30, maxTimer: 30, lastWinner: null }
+};
+let chatMessages = [];
+let notifications = [{ text: 'Добро пожаловать в SJ CASINO!', time: new Date().toLocaleTimeString() }];
+let transactions = [], winnersHistory = [];
+let totalBets = 0, totalWagered = 0, lowestChance = null, totalDeposit = 0;
+let profileNick = username, profileAvatarColor = '#b8a9ff', profileAvatarInit = 'S', profileAvatarImg = null;
+let myBetHistory = [], claimedRankBonuses = [], subscribeClaimed = false;
+let lastWinnerProcessed = {};
+let nickChangesLeft = 1;
+let replyTo = null;
+let adminRequisites = {
+    sbp: { number: '+79001234567', bank: 'Ozon Bank' },
+    card: { number: '2200123456789012', bank: 'VISA' },
+    ton: { address: 'EQD...example' },
+    usdt: { address: 'TXh...example' }
+};
+let adminList = ['SJ'], moderList = [];
+let chatOpen = false, menuOpen = false, notifOpen = false, adminOpen = false;
+let profileHistoryOpen = true, walletTxOpen = true, txHeaderClicks = 0;
+let depositTimerInterval = null;
+let captchaResolve = null;
+
+function initName(name) { return (name || '??').substring(0,2).toUpperCase(); }
+
+async function apiCall(endpoint, data = {}) {
+    try {
+        const res = await fetch(API + endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, username, ...data })
+        });
+        return await res.json();
+    } catch(e) { return { error: 'Нет связи с сервером' }; }
+}
+
+async function fetchRooms() {
+    try {
+        const res = await fetch(API + '/api/rooms');
+        const data = await res.json();
+        for (const id in data) {
+            roomState[id] = data[id];
+            if (data[id].lastWinner) onNewWinner(id, data[id].lastWinner);
+        }
+        updateUI();
+    } catch(e) {}
+}
+
+async function fetchTransactions() {
+    try {
+        const res = await fetch(API + '/api/transactions/' + userId);
+        transactions = await res.json();
+        renderWalletTx();
+    } catch(e) {}
+}
+
+async function fetchBetHistory() {
+    try {
+        const res = await fetch(API + '/api/bets/' + userId);
+        myBetHistory = await res.json();
+        updateProfileHistory();
+    } catch(e) {}
+}
+
+function onNewWinner(roomId, winnerData) {
+    if (roomId !== currentRoom) return;
+    const key = roomId + '_' + winnerData.ticket;
+    if (lastWinnerProcessed[key]) return;
+    lastWinnerProcessed[key] = true;
+    winnersHistory.unshift({
+        name: winnerData.name,
+        amount: winnerData.amount,
+        room: ROOMS[roomId].name,
+        date: new Date().toLocaleTimeString()
+    });
+    if (winnersHistory.length > 20) winnersHistory.pop();
+    doSpin(winnerData);
+}
+
+function doSpin(serverWinner) {
+    if (isSpinning) return;
+    isSpinning = true;
+    document.getElementById('winnerInfo').classList.remove('active');
+    const s = roomState[currentRoom];
+    let all = [...s.players];
+    if (myBet > 0) {
+        all.push({
+            name: profileNick || 'Вы',
+            color: profileAvatarColor,
+            bet: myBet,
+            tickets: myBet * TICKETS_PER_COIN,
+            avatar: profileAvatarImg,
+            isYou: true,
+            userId
+        });
+    }
+
+    let winner = all.find(p =>
+        (serverWinner.userId && p.userId === serverWinner.userId) ||
+        (!serverWinner.userId && p.name === serverWinner.name && p.color === serverWinner.color)
+    );
+    if (!winner) winner = all[0];
+
+    let slotsBefore = 0;
+    for (const p of all) {
+        if (p === winner) break;
+        slotsBefore += Math.max(1, Math.floor((p.tickets || p.bet * TICKETS_PER_COIN) / AVATAR_STEP));
+    }
+
+    const track = document.getElementById('slotTrack');
+    const itemW = 40, viewCenter = (Math.min(window.innerWidth, 420) - 40) / 2;
+    const startX = spinOffset;
+    const extraDistance = 1000 + Math.floor(Math.random() * 800);
+    const stopX = startX - (slotsBefore * itemW) + viewCenter - extraDistance;
+    spinOffset = stopX;
+
+    track.style.transition = 'none';
+    track.style.transform = `translateX(${startX}px)`;
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            track.style.transition = `transform ${8 + Math.random() * 4}s cubic-bezier(.02,.95,.08,1)`;
+            track.style.transform = `translateX(${stopX}px)`;
+        });
+    });
+
+    setTimeout(() => {
+        const avatars = document.querySelectorAll('.slot-avatar');
+        let slotIdx = 0;
+        for (const p of all) {
+            const slots = Math.max(1, Math.floor((p.tickets || p.bet * TICKETS_PER_COIN) / AVATAR_STEP));
+            for (let i = 0; i < slots; i++) {
+                if (avatars[slotIdx + i]) {
+                    avatars[slotIdx + i].classList.toggle('dimmed', p !== winner);
+                }
+            }
+            slotIdx += slots;
+        }
+        const winnerAv = document.querySelector('.slot-avatar:not(.dimmed)');
+        if (winnerAv) {
+            winnerAv.classList.add('flip');
+            setTimeout(() => winnerAv.classList.remove('flip'), 700);
+        }
+
+        document.getElementById('winnerMiniAvatar').style.background = winner.color;
+        document.getElementById('winnerMiniAvatar').textContent = initName(winner.name);
+        document.getElementById('winnerNameText').textContent = winner.name;
+        const totalBet = s.bank + myBet;
+        const winChance = totalBet > 0 ? ((winner.bet / totalBet) * 100).toFixed(1) : '0';
+        document.getElementById('winnerChanceText').textContent = 'Шанс: ' + winChance + '% | Билет: #' + (serverWinner.ticket || 0).toLocaleString();
+        document.getElementById('winnerAmountText').textContent = '+' + serverWinner.amount.toLocaleString();
+        document.getElementById('winnerInfo').classList.add('active');
+
+        if (!winner.isBot && winner.userId === userId) {
+            balance += serverWinner.amount;
+            document.getElementById('appContainer').classList.add('flash-bg');
+            setTimeout(() => document.getElementById('appContainer').classList.remove('flash-bg'), 1200);
+            addNotification('Вы выиграли джекпот! +' + serverWinner.amount + ' монет');
+        }
+
+        myBet = 0;
+        setTimeout(() => { isSpinning = false; }, 3000);
+    }, 10000);
+}
+
+function updateUI() {
+    const room = roomState[currentRoom];
+    const cfg = ROOMS[currentRoom];
+    document.getElementById('roomTitle').textContent = cfg.name;
+    document.getElementById('totalBank').textContent = (room.bank || 0).toLocaleString();
+    document.getElementById('playerCount').textContent = 'Участников: ' + (room.players ? room.players.length : 0);
+    document.getElementById('timerFill').style.width = ((room.timer || 0) / (room.maxTimer || 30) * 100) + '%';
+    document.getElementById('timerText').textContent = 'До розыгрыша: 0:' + String(room.timer || 0).padStart(2, '0');
+
+    for (const r in roomState) {
+        const cnt = roomState[r].players ? roomState[r].players.length : 0;
+        const el = document.getElementById('count' + r.charAt(0).toUpperCase() + r.slice(1));
+        if (el) el.textContent = cnt;
+    }
+
+    document.getElementById('myBetDisplay').textContent = myBet;
+    document.getElementById('myChance').textContent = (room.bank || 0) + myBet > 0 ? ((myBet / ((room.bank || 0) + myBet)) * 100).toFixed(1) + '%' : '0%';
+    document.getElementById('limitDisplay').textContent = myBet + '/' + cfg.max;
+
+    let all = [...(room.players || [])];
+    if (myBet > 0) all.push({ name: profileNick, color: profileAvatarColor, bet: myBet, tickets: myBet * TICKETS_PER_COIN, isYou: true });
+    const track = document.getElementById('slotTrack');
+    let trackHTML = '';
+    for (let cycle = 0; cycle < 3; cycle++) {
+        for (const p of all) {
+            const slots = Math.max(1, Math.floor((p.tickets || p.bet * TICKETS_PER_COIN) / AVATAR_STEP));
+            const avHTML = p.avatar ? `<img src="${p.avatar}" style="width:34px;height:34px;border-radius:50%;object-fit:cover">` : initName(p.name);
+            for (let s = 0; s < slots; s++) {
+                trackHTML += `<div class="slot-item"><div class="slot-avatar" style="background:${p.color || '#888'};${p.isYou ? 'box-shadow:0 0 10px rgba(184,169,255,.5);' : ''}">${avHTML}</div></div>`;
+            }
+        }
+    }
+    track.innerHTML = trackHTML;
+
+    let histHTML = '';
+    let startTicket = 0;
+    for (const p of all) {
+        const tickets = p.tickets || p.bet * TICKETS_PER_COIN;
+        const endTicket = startTicket + tickets - 1;
+        const chance = (room.bank || 0) + myBet > 0 ? ((p.bet / ((room.bank || 0) + myBet)) * 100).toFixed(1) : '0';
+        const avHTML = p.avatar ? `<img src="${p.avatar}" style="width:20px;height:20px;border-radius:50%;object-fit:cover">` : initName(p.name);
+        histHTML += `<div class="history-item${p.isYou ? ' win' : ''}"><div class="history-avatar" style="background:${p.avatar ? 'transparent' : p.color || '#888'}">${avHTML}</div><div class="history-name">${p.name}${p.isYou ? ' (Вы)' : ''}</div><div class="history-range">${startTicket.toLocaleString()}-${endTicket.toLocaleString()}</div><div class="history-chance">${chance}%</div></div>`;
+        startTicket = endTicket + 1;
+    }
+    document.getElementById('historyList').innerHTML = histHTML || '<p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет ставок</p>';
+
+    let winnersHTML = '';
+    winnersHistory.slice(0, 6).forEach(w => {
+        winnersHTML += `<div class="winner-entry"><span class="w-name">${w.name}</span><span class="w-amount">+${w.amount.toLocaleString()}</span><span class="w-room">${w.room}</span></div>`;
+    });
+    document.getElementById('winnersList').innerHTML = winnersHTML || '<p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет победителей</p>';
+
+    document.getElementById('balanceDisplay').textContent = balance.toLocaleString();
+    document.getElementById('walletBalance').textContent = balance.toLocaleString();
+    document.getElementById('navBalance').textContent = balance.toLocaleString();
+}
+
+async function placeBet() {
+    if (isSpinning) return;
+    const amt = parseInt(document.getElementById('betAmount').value);
+    const cfg = ROOMS[currentRoom];
+    if (!amt || amt < cfg.min) return alert('Мин. ставка: ' + cfg.min);
+    if (amt > cfg.max) return alert('Макс. ставка: ' + cfg.max);
+    if (myBet + amt > cfg.max) return alert('Лимит на раунд: ' + cfg.max);
+    if (amt > balance) return alert('Недостаточно монет');
+
+    const res = await apiCall('/api/bet', { roomId: currentRoom, amount: amt });
+    if (res.error) return alert(res.error);
+    balance -= amt;
+    myBet += amt;
+    document.getElementById('betAmount').value = '';
+    fetchRooms();
+}
+
+function switchRoom(room) {
+    currentRoom = room;
+    myBet = 0;
+    spinOffset = 0;
+    document.getElementById('winnerInfo').classList.remove('active');
+    document.querySelectorAll('.room-tab').forEach((b, i) => b.classList.toggle('active', Object.keys(ROOMS)[i] === room));
+    fetchRooms();
+}
+
+function switchPage(page) {
+    const pages = ['jackpot', 'bonus', 'wallet', 'profile'];
+    pages.forEach(p => {
+        const el = document.getElementById(p + 'Page');
+        if (el) el.style.display = 'none';
+    });
+
+    if (page === 'chat') {
+        toggleChat();
+        return;
+    }
+
+    const active = document.getElementById(page + 'Page');
+    if (active) active.style.display = 'block';
+
+    document.querySelectorAll('.nav-item').forEach((n, i) => {
+        n.classList.toggle('active', i === {jackpot:0, bonus:1, wallet:2, chat:3, profile:4}[page]);
+    });
+
+    document.getElementById('roomsBar').style.display = page === 'jackpot' ? 'flex' : 'none';
+
+    if (page === 'wallet') fetchTransactions();
+    if (page === 'profile') { updateProfileUI(); fetchBetHistory(); }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text || text.length > 200) return;
+    await apiCall('/api/chat/send', { text, replyTo });
+    input.value = '';
+    replyTo = null;
+    document.getElementById('replyPreview').classList.add('hidden');
+    fetchChatMessages();
+}
+
+async function fetchChatMessages() {
+    try {
+        const res = await fetch(API + '/api/chat/messages?limit=100');
+        chatMessages = await res.json();
+        renderChat();
+    } catch(e) {}
+}
+
+function renderChat() {
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = chatMessages.map(m => {
+        const isReply = m.reply_to !== null;
+        const repliedMsg = isReply ? chatMessages.find(x => x.id === m.reply_to) : null;
+        const isAdmin = adminList.includes(m.username);
+        const isModer = moderList.includes(m.username);
+        const isMe = m.user_id == userId;
+        const authorClass = isAdmin ? 'admin' : (isModer ? 'moder' : '');
+        const roleLabel = isAdmin ? ' (Админ)' : (isModer ? ' (Модер)' : '');
+        return `<div class="chat-msg">
+            <div class="chat-msg-avatar" style="background:${isAdmin ? '#f87171' : (isModer ? '#f59e0b' : '#b8a9ff')}">${initName(m.username)}</div>
+            <div class="chat-msg-body${isMe ? ' my-msg' : ''}">
+                ${isReply && repliedMsg ? `<div class="chat-reply-to">↳ ${repliedMsg.username}: ${repliedMsg.text.substring(0,15)}</div>` : ''}
+                <div class="chat-author ${authorClass}">${m.username}${roleLabel}</div>
+                ${m.text}
+                <div style="font-size:8px;color:#555;margin-top:2px;cursor:pointer" onclick="setReply(${m.id})">Ответить</div>
+            </div>
+        </div>`;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+    updateChatScrollBtn();
+}
+
+function setReply(id) {
+    replyTo = id;
+    const msg = chatMessages.find(m => m.id === id);
+    if (msg) {
+        document.getElementById('replyText').textContent = 'Ответ: ' + msg.username + ' — ' + msg.text.substring(0, 20);
+        document.getElementById('replyPreview').classList.remove('hidden');
+        document.getElementById('chatInput').focus();
+    }
+}
+
+function cancelReply() {
+    replyTo = null;
+    document.getElementById('replyPreview').classList.add('hidden');
+}
+
+function updateChatScrollBtn() {
+    const container = document.getElementById('chatMessages');
+    const btn = document.getElementById('chatScrollBtn');
+    if (container.scrollTop < container.scrollHeight - container.clientHeight - 100) {
+        btn.classList.add('visible');
+    } else {
+        btn.classList.remove('visible');
+    }
+}
+
+function scrollChatToBottom() {
+    const container = document.getElementById('chatMessages');
+    container.scrollTop = container.scrollHeight;
+    updateChatScrollBtn();
+}
+
+function toggleChat() {
+    chatOpen = !chatOpen;
+    document.getElementById('chatPanel').classList.toggle('open', chatOpen);
+    document.getElementById('chatOverlay').classList.toggle('active', chatOpen || menuOpen || notifOpen || adminOpen);
+    document.getElementById('chatNavBtn').classList.toggle('active', chatOpen);
+    if (menuOpen && chatOpen) toggleMenu();
+    if (notifOpen && chatOpen) toggleNotif();
+    if (chatOpen) fetchChatMessages();
+}
+
+function closeAllPanels() {
+    chatOpen = false;
+    document.getElementById('chatPanel').classList.remove('open');
+    document.getElementById('chatOverlay').classList.remove('active');
+    document.getElementById('chatNavBtn').classList.remove('active');
+}
+
+function toggleNotif() {
+    notifOpen = !notifOpen;
+    document.getElementById('notifPanel').classList.toggle('open', notifOpen);
+    document.getElementById('chatOverlay').classList.toggle('active', chatOpen || menuOpen || notifOpen || adminOpen);
+    if (chatOpen && notifOpen) toggleChat();
+    if (menuOpen && notifOpen) toggleMenu();
+    if (notifOpen) renderNotifList();
+}
+
+function addNotification(text) {
+    notifications.unshift({ text, time: new Date().toLocaleTimeString() });
+    if (notifications.length > 30) notifications.pop();
+    renderNotifBadge();
+}
+
+function renderNotifBadge() {
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = notifications.length;
+    badge.classList.toggle('visible', notifications.length > 0);
+}
+
+function renderNotifList() {
+    const c = document.getElementById('notifList');
+    if (notifications.length === 0) {
+        c.innerHTML = '<p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет уведомлений</p>';
+        return;
+    }
+    c.innerHTML = notifications.map(n => `<div class="notif-item">${n.text}<div class="notif-time">${n.time}</div></div>`).join('');
+}
+
+function toggleMenu() {
+    menuOpen = !menuOpen;
+    document.getElementById('menuPanel').classList.toggle('open', menuOpen);
+    document.getElementById('chatOverlay').classList.toggle('active', chatOpen || menuOpen || notifOpen || adminOpen);
+    if (chatOpen && menuOpen) toggleChat();
+}
+
+function showRanksModal() {
+    document.getElementById('ranksContent').innerHTML = '';
+    const curIdx = getRankIndex();
+    RANKS.forEach((r, i) => {
+        const isCur = i === curIdx;
+        document.getElementById('ranksContent').innerHTML += `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);${isCur ? 'background:rgba(184,169,255,.1);border-radius:6px;padding:6px' : ''}"><strong>${r.name}</strong> — Ставок: ${r.bets.toLocaleString()} / Деп: ${r.dep.toLocaleString()} — Бонус: <span style="color:var(--gold)">+${r.bonus.toLocaleString()}</span></div>`;
+    });
+    document.getElementById('ranksModal').classList.add('active');
+}
+
+function closeRanksModal() { document.getElementById('ranksModal').classList.remove('active'); }
+
+function showInfoModal(type) {
+    const t = document.getElementById('infoModalTitle');
+    const c = document.getElementById('infoModalContent');
+    if (type === 'rules') {
+        t.textContent = 'Правила';
+        c.innerHTML = '<p>1. Ставки в монетах SJ CASINO.<br>2. 1 монета = 10 билетов.<br>3. Победитель определяется случайно на сервере.<br>4. Лимит ставок ограничен комнатой.<br>5. Комиссия платформы — 10% от выигрыша.<br>6. Запрещены боты и накрутка.</p>';
+    } else if (type === 'faq') {
+        t.textContent = 'Частые вопросы';
+        c.innerHTML = '<p><strong>Как вывести?</strong> — В разделе Кошелёк.<br><strong>Как работают билеты?</strong> — 1 монета = 10 билетов.<br><strong>Есть ли комиссия?</strong> — Да, 10% от выигрыша.</p>';
+    } else if (type === 'support') {
+        t.textContent = 'Поддержка';
+        c.innerHTML = '<p>По всем вопросам: <strong>@user_live</strong><br>Режим работы: 10:00–22:00 МСК</p>';
+    }
+    document.getElementById('infoModal').classList.add('active');
+}
+
+function closeInfoModal() { document.getElementById('infoModal').classList.remove('active'); }
+
+function getRankIndex() {
+    let idx = 0;
+    for (let i = RANKS.length - 1; i >= 0; i--) {
+        if (totalBets >= RANKS[i].bets && totalDeposit >= RANKS[i].dep) { idx = i; break; }
+    }
+    return idx;
+}
+
+function getRank() { return RANKS[getRankIndex()]; }
+function getNextRank() {
+    const idx = getRankIndex();
+    return idx < RANKS.length - 1 ? RANKS[idx + 1] : null;
+}
+
+function checkRankBonus() {
+    const idx = getRankIndex();
+    if (!claimedRankBonuses.includes(idx) && RANKS[idx].bonus > 0) {
+        claimedRankBonuses.push(idx);
+        balance += RANKS[idx].bonus;
+        totalDeposit += RANKS[idx].bonus;
+        addNotification('Получен бонус за ранг: +' + RANKS[idx].bonus + ' монет');
+        return RANKS[idx];
+    }
+    return null;
+}
+
+function updateProfileUI() {
+    document.getElementById('profileNickname').textContent = profileNick;
+    const av = document.getElementById('profileAvatar');
+    const avTxt = document.getElementById('profileAvatarTxt');
+    if (profileAvatarImg) {
+        avTxt.style.display = 'none';
+        let img = av.querySelector('img');
+        if (!img) { img = document.createElement('img'); av.appendChild(img); }
+        img.src = profileAvatarImg;
+        av.style.background = 'transparent';
+    } else {
+        avTxt.style.display = '';
+        avTxt.textContent = profileAvatarInit;
+        av.style.background = profileAvatarColor;
+        const img = av.querySelector('img');
+        if (img) img.remove();
+    }
+
+    const rank = getRank();
+    const next = getNextRank();
+    document.getElementById('profileRank').textContent = 'Ранг: ' + rank.name;
+
+    if (next) {
+        const betProg = Math.min(100, (totalBets / next.bets) * 100);
+        const depProg = Math.min(100, (totalDeposit / next.dep) * 100);
+        document.getElementById('rankBetsLabel').textContent = 'Осталось ставок до следующего ранга: ' + Math.floor(betProg) + '%';
+        document.getElementById('rankFillBets').style.width = betProg + '%';
+        document.getElementById('rankBetsText').textContent = (next.bets - totalBets).toLocaleString();
+        document.getElementById('rankDepLabel').textContent = 'Депозитов: ' + Math.floor(depProg) + '%';
+        document.getElementById('rankFillDep').style.width = depProg + '%';
+        document.getElementById('rankDepText').textContent = (next.dep - totalDeposit).toLocaleString();
+    } else {
+        document.getElementById('rankBetsLabel').textContent = 'Максимальный ранг!';
+        document.getElementById('rankFillBets').style.width = '100%';
+        document.getElementById('rankBetsText').textContent = '✓';
+        document.getElementById('rankDepLabel').textContent = '';
+        document.getElementById('rankFillDep').style.width = '100%';
+        document.getElementById('rankDepText').textContent = '✓';
+    }
+
+    document.getElementById('statTotalBets').textContent = totalBets > 0 ? totalBets : '▼';
+    document.getElementById('statTotalBetsDetail').textContent = totalBets;
+    document.getElementById('statTotalWagered').textContent = totalWagered > 0 ? totalWagered.toLocaleString() : '▼';
+    document.getElementById('statTotalWageredDetail').textContent = totalWagered.toLocaleString();
+    document.getElementById('statLowestChance').textContent = lowestChance ? lowestChance + '%' : '▼';
+    document.getElementById('statLowestChanceDetail').textContent = lowestChance ? lowestChance + '%' : '-';
+    document.getElementById('statDeposit').textContent = totalDeposit > 0 ? totalDeposit.toLocaleString() : '▼';
+    document.getElementById('statDepositDetail').textContent = totalDeposit.toLocaleString();
+}
+
+function updateProfileHistory() {
+    let histHTML = '';
+    myBetHistory.slice().reverse().forEach(h => {
+        histHTML += `<div class="history-item ${h.win ? 'win' : 'lose'}"><div class="history-avatar" style="background:${profileAvatarImg ? 'transparent' : profileAvatarColor}">${profileAvatarImg ? '<img src="'+profileAvatarImg+'" style="width:20px;height:20px;border-radius:50%;object-fit:cover">' : profileAvatarInit}</div><div class="history-name">${h.room_id}</div><div class="history-range">${h.amount} мон.</div><div class="history-chance">Билет: #${h.ticket || 0}</div></div>`;
+    });
+    document.getElementById('profileHistoryList').innerHTML = histHTML || '<p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет истории</p>';
+}
+
+function toggleStatDetail(el) {
+    const detail = el.querySelector('.profile-stat-detail');
+    const arrow = el.querySelector('.stat-arrow');
+    detail.classList.toggle('open');
+    arrow.textContent = detail.classList.contains('open') ? '▲' : '▼';
+}
+
+function toggleProfileHistory() {
+    profileHistoryOpen = !profileHistoryOpen;
+    document.getElementById('profileHistoryList').style.display = profileHistoryOpen ? 'block' : 'none';
+    document.getElementById('profileHistoryArrow').textContent = profileHistoryOpen ? '▼' : '▶';
+}
+
+function openNickModal() {
+    document.getElementById('nickModalInput').value = profileNick;
+    document.getElementById('nickModalHint').textContent = nickChangesLeft > 0 ? 'Первая смена бесплатно' : 'Смена ника стоит 40 монет. У вас ' + balance + ' монет.';
+    document.getElementById('nickModal').classList.add('active');
+}
+
+function closeNickModal() { document.getElementById('nickModal').classList.remove('active'); }
+
+function saveNickname() {
+    const newNick = document.getElementById('nickModalInput').value.trim();
+    if (!newNick || newNick.length > 12) return alert('Ник должен быть от 1 до 12 символов');
+    if (nickChangesLeft <= 0 && balance < 40) return alert('Недостаточно средств. Смена ника — 40 монет.');
+    if (nickChangesLeft > 0) nickChangesLeft--;
+    else balance -= 40;
+    profileNick = newNick;
+    profileAvatarInit = initName(profileNick);
+    closeNickModal();
+    updateProfileUI();
+}
+
+function uploadAvatar(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        profileAvatarImg = e.target.result;
+        updateProfileUI();
+    };
+    reader.readAsDataURL(file);
+}
+
+function openDepositModal() { document.getElementById('depositModal').classList.add('active'); }
+function closeDepositModal() { document.getElementById('depositModal').classList.remove('active'); }
+
+function onDepositMethodChange() {
+    const m = document.getElementById('depositMethod').value;
+    const info = document.getElementById('depositInfo');
+    if (m === 'ton') info.textContent = 'Курс: 1 TON ≈ 148 монет. Мин. 5 TON';
+    else if (m === 'usdt') info.textContent = 'Курс: 1$ ≈ 72 монеты. Мин. 10$';
+    else info.textContent = '';
+}
+
+function startDepositProcess() {
+    const m = document.getElementById('depositMethod').value;
+    const amt = parseFloat(document.getElementById('depositAmount').value);
+    const msg = document.getElementById('depositMsg');
+    if (!m) { msg.textContent = 'Выберите способ'; return; }
+    if (!amt || amt <= 0) { msg.textContent = 'Введите сумму'; return; }
+    const mins = { sbp: 1000, card: 3000, ton: 5, usdt: 10 };
+    if (amt < mins[m]) { msg.textContent = 'Минимальная сумма: ' + mins[m] + (m === 'sbp' || m === 'card' ? '₽' : m === 'ton' ? ' TON' : '$'); return; }
+    closeDepositModal();
+    document.getElementById('depositProcessTitle').textContent = 'Подбираем реквизиты...';
+    document.getElementById('depositProcessContent').innerHTML = '<p>Пожалуйста, подождите</p>';
+    document.getElementById('depositProcessModal').classList.add('active');
+    setTimeout(() => showDepositDetails(m, amt), 3000 + Math.random() * 1000);
+}
+
+function closeDepositProcessModal() { document.getElementById('depositProcessModal').classList.remove('active'); }
+
+function showDepositDetails(method, amount) {
+    closeDepositProcessModal();
+    const req = adminRequisites[method] || {};
+    document.getElementById('depositDetailsTitle').textContent = 'Реквизиты для пополнения';
+    let html = '';
+    if (method === 'sbp' || method === 'card') {
+        html += `<div class="requisite-row" onclick="copyText('${req.number || ''}')"><div class="requisite-label">${method === 'sbp' ? 'Номер телефона' : 'Номер карты'}</div><div class="requisite-value">${req.number || 'Не задан'}</div></div>`;
+        html += `<div class="requisite-row" onclick="copyText('${req.bank || ''}')"><div class="requisite-label">Банк</div><div class="requisite-value">${req.bank || 'Не задан'}</div></div>`;
+        html += `<div class="requisite-row"><div class="requisite-label">Сумма</div><div class="requisite-value">${amount} ₽</div></div>`;
+        html += '<p style="font-size:10px;color:var(--sub);text-align:center;margin-top:8px">Переводите точную сумму на указанный счет в течении 10 минут, иначе ваш платеж может затеряться!</p>';
+        document.getElementById('depositTimer').textContent = '10:00';
+        document.getElementById('depositTimer').style.display = 'block';
+        document.getElementById('depositPayBtn').style.display = 'block';
+        document.getElementById('depositCloseBtn').style.display = 'block';
+        startDepositTimer();
+    } else {
+        html += `<div class="requisite-row" onclick="copyText('${req.address || ''}')"><div class="requisite-label">Адрес кошелька</div><div class="requisite-value" style="font-size:11px;word-break:break-all">${req.address || 'Не задан'}</div></div>`;
+        html += '<p style="font-size:9px;color:var(--sub);text-align:center;margin-top:4px">Нажми что бы скопировать или сканируй QR-код</p>';
+        document.getElementById('depositTimer').style.display = 'none';
+        document.getElementById('depositPayBtn').style.display = 'none';
+        document.getElementById('depositCloseBtn').style.display = 'block';
+    }
+    document.getElementById('depositDetailsContent').innerHTML = html;
+    document.getElementById('depositDetailsModal').classList.add('active');
+}
+
+function closeDepositDetailsModal() {
+    document.getElementById('depositDetailsModal').classList.remove('active');
+    if (depositTimerInterval) clearInterval(depositTimerInterval);
+}
+
+function startDepositTimer() {
+    let seconds = 600;
+    if (depositTimerInterval) clearInterval(depositTimerInterval);
+    depositTimerInterval = setInterval(() => {
+        seconds--;
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        document.getElementById('depositTimer').textContent = m + ':' + String(s).padStart(2, '0');
+        if (seconds <= 0) {
+            clearInterval(depositTimerInterval);
+            closeDepositDetailsModal();
+        }
+    }, 1000);
+}
+
+async function confirmDepositPayment() {
+    const amt = parseFloat(document.getElementById('depositAmount').value) || 100;
+    const method = document.getElementById('depositMethod').value;
+    await apiCall('/api/deposit', { method, amount: amt, wallet: '' });
+    addNotification('Вы создали заявку на пополнение. Среднее время ожидания ~ 1 мин.');
+    closeDepositDetailsModal();
+    document.getElementById('depositSuccessModal').classList.add('active');
+    fetchTransactions();
+}
+
+function closeDepositSuccessModal() { document.getElementById('depositSuccessModal').classList.remove('active'); }
+
+function copyText(text) { navigator.clipboard?.writeText(text).then(() => {}).catch(() => {}); }
+
+function openWithdrawModal() {
+    document.getElementById('withdrawAmount').value = '';
+    document.getElementById('withdrawMethod').value = '';
+    document.getElementById('withdrawMethodDetails').classList.add('hidden');
+    document.getElementById('withdrawFeeDetails').classList.add('hidden');
+    document.getElementById('withdrawMsg').textContent = '';
+    document.getElementById('withdrawModal').classList.add('active');
+}
+
+function closeWithdrawModal() { document.getElementById('withdrawModal').classList.remove('active'); }
+
+function onWithdrawMethodChange() {
+    const m = document.getElementById('withdrawMethod').value;
+    const d = document.getElementById('withdrawMethodDetails');
+    const f = document.getElementById('withdrawFeeDetails');
+    d.classList.remove('hidden');
+    f.classList.remove('hidden');
+    if (m === 'sbp') {
+        d.innerHTML = '<select id="bankSelect"><option value="">Выберите банк</option><option>Сбербанк</option><option>Т-Банк</option><option>ВТБ</option><option>Альфа-Банк</option><option>Райффайзен</option><option>Газпромбанк</option><option>Почта Банк</option><option>Озон Банк</option></select><input type="text" id="withdrawWalletInput" placeholder="+79XXXXXXXXX">';
+    } else if (m === 'card') {
+        d.innerHTML = '<select id="cardType"><option value="">Тип карты</option><option>VISA</option><option>Mastercard</option><option>Мир</option></select><input type="text" id="withdrawWalletInput" placeholder="0000 0000 0000 0000">';
+    } else if (m === 'usdt') {
+        d.innerHTML = '<input type="text" id="withdrawWalletInput" placeholder="T... (адрес TRC-20)">';
+    } else if (m === 'ton') {
+        d.innerHTML = '<input type="text" id="withdrawWalletInput" placeholder="EQD... (адрес TON)">';
+    } else if (m === 'cryptobot') {
+        d.innerHTML = '<select id="cryptoCurrency"><option value="">В какой монете желаете получить чек?</option><option>USDT</option><option>TON</option></select><input type="text" id="withdrawWalletInput" placeholder="Введите свой ID Telegram">';
+    } else {
+        d.classList.add('hidden');
+        f.classList.add('hidden');
+    }
+    updateWithdrawInfo();
+}
+
+function updateWithdrawInfo() {
+    const amt = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+    const m = document.getElementById('withdrawMethod').value;
+    const fe = document.getElementById('withdrawFeeText');
+    const te = document.getElementById('withdrawTotalAmount');
+    const fd = document.getElementById('withdrawFeeDetails');
+    if (!m || amt < 1500) { fd.classList.add('hidden'); return; }
+    fd.classList.remove('hidden');
+    let fee = 0, ft = '';
+    if (m === 'sbp' || m === 'card' || m === 'cryptobot') { fee = 0; ft = 'Без комиссии'; }
+    else if (m === 'ton') { fee = 5; ft = 'Комиссия сети: ~5 монет'; }
+    else if (m === 'usdt') { fee = Math.round(amt * 0.05 + 350); ft = 'Комиссия: 350₽ + 5% (~' + fee + ' монет)'; }
+    fe.textContent = ft;
+    te.textContent = Math.max(0, amt - fee).toFixed(0);
+}
+
+async function requestWithdraw() {
+    const amt = parseFloat(document.getElementById('withdrawAmount').value);
+    const method = document.getElementById('withdrawMethod').value;
+    const walletInput = document.getElementById('withdrawWalletInput');
+    const wallet = walletInput ? walletInput.value.trim() : '';
+    const msg = document.getElementById('withdrawMsg');
+    if (!amt || amt < 1500) { msg.textContent = 'Минимум 1500 монет'; return; }
+    if (amt > balance) { msg.textContent = 'Недостаточно средств'; return; }
+    if (!method) { msg.textContent = 'Выберите способ вывода'; return; }
+
+    let valid = true;
+    if (method === 'sbp') {
+        if (!wallet.startsWith('+79') || wallet.length !== 12) { msg.textContent = 'Введите номер телефона в формате +79XXXXXXXXX'; valid = false; }
+    } else if (method === 'card') {
+        const cleaned = wallet.replace(/\s/g, '');
+        if (cleaned.length !== 16 || !/^\d+$/.test(cleaned)) { msg.textContent = 'Введите 16-значный номер карты'; valid = false; }
+    } else if (method === 'usdt') {
+        if (!wallet.startsWith('T') || wallet.length < 25 || wallet.length > 45) { msg.textContent = 'Введите корректный адрес TRC-20 (начинается с T)'; valid = false; }
+    } else if (method === 'ton') {
+        if (wallet.length < 30 || wallet.length > 70) { msg.textContent = 'Введите корректный адрес TON'; valid = false; }
+    } else if (method === 'cryptobot') {
+        if (!wallet) { msg.textContent = 'Введите ID Telegram'; valid = false; }
+    } else if (!wallet) { msg.textContent = 'Укажите реквизиты'; valid = false; }
+    if (!valid) return;
+
+    const res = await apiCall('/api/withdraw', { method, amount: amt, wallet });
+    if (res.error) { msg.textContent = res.error; return; }
+
+    balance -= amt;
+    addNotification('Заявка на вывод создана, ожидайте обработки. Среднее время выплат от 5-ти до 24-х часов.');
+    msg.textContent = 'Заявка принята';
+    msg.style.color = 'var(--green)';
+    closeWithdrawModal();
+    fetchTransactions();
+    updateUI();
+}
+
+function renderWalletTx() {
+    const c = document.getElementById('walletTxList');
+    if (!walletTxOpen) { c.style.display = 'none'; return; }
+    c.style.display = 'block';
+    if (transactions.length === 0) {
+        c.innerHTML = '<p style="color:var(--sub);font-size:10px;text-align:center;">Пока нет транзакций</p>';
+        return;
+    }
+    c.innerHTML = transactions.map(tx => {
+        const statusLabels = { processing: 'В обработке', success: 'Успешно', cancelled: 'Отменён', pending: 'В ожидании' };
+        const date = tx.created_at ? new Date(tx.created_at).toLocaleString('ru-RU') : '';
+        return `<div class="tx-item">
+            <div class="tx-row"><span class="tx-id">${tx.type} #${tx.id}</span><span class="tx-amount">${tx.amount.toLocaleString()} мон.</span></div>
+            <div class="tx-row" style="margin-top:2px"><span class="tx-date">${date}</span><span class="tx-status ${tx.status}">${statusLabels[tx.status] || tx.status}</span></div>
+            ${tx.fee ? `<div class="tx-row" style="margin-top:2px"><span class="tx-date">Комиссия: ${tx.fee} мон.</span></div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function toggleWalletTx() {
+    walletTxOpen = !walletTxOpen;
+    document.getElementById('txToggleIcon').textContent = walletTxOpen ? '▼' : '▶';
+    renderWalletTx();
+}
+
+function handleTxHeaderClick() {
+    txHeaderClicks++;
+    if (txHeaderClicks >= 6) { txHeaderClicks = 0; openAdminPanel(); }
+    else { toggleWalletTx(); }
+}
+
+function startPromoCaptcha() {
+    const code = document.getElementById('promoInput').value.trim().toUpperCase();
+    const a = Math.floor(Math.random() * 20) + 1;
+    const b = Math.floor(Math.random() * 20) + 1;
+    const op = Math.random() > 0.5 ? '+' : '-';
+    const ans = op === '+' ? a + b : Math.max(a, b) - Math.min(a, b);
+    document.getElementById('captchaQuestion').textContent = (op === '-' ? Math.max(a, b) : a) + ' ' + op + ' ' + (op === '-' ? Math.min(a, b) : b) + ' = ?';
+    document.getElementById('captchaAnswer').value = '';
+    document.getElementById('captchaOverlay').classList.add('active');
+    captchaResolve = { resolve: () => activatePromo(code) };
+}
+
+function submitCaptcha() {
+    const ans = parseInt(document.getElementById('captchaAnswer').value);
+    if (isNaN(ans)) return;
+    document.getElementById('captchaOverlay').classList.remove('active');
+    if (captchaResolve) { captchaResolve.resolve(); captchaResolve = null; }
+}
+
+async function activatePromo(code) {
+    const res = await apiCall('/api/promo', { code });
+    const msg = document.getElementById('promoMsg');
+    if (res.error) { msg.textContent = res.error; msg.style.color = 'var(--red)'; }
+    else {
+        msg.textContent = 'Промокод активирован! +' + res.bonus + ' монет';
+        msg.style.color = 'var(--green)';
+        balance += res.bonus;
+        document.getElementById('promoInput').value = '';
+        updateUI();
+        checkRankBonus();
+    }
+}
+
+function claimSubscribeBonus() {
+    if (subscribeClaimed) { document.getElementById('subscribeMsg').textContent = 'Вы уже получили бонус'; return; }
+    subscribeClaimed = true;
+    balance += 10;
+    totalDeposit += 10;
+    document.getElementById('subscribeMsg').textContent = '+10 монет начислено!';
+    document.getElementById('subscribeMsg').style.color = 'var(--green)';
+    document.getElementById('subscribeBtn').disabled = true;
+    document.getElementById('subscribeBtn').textContent = 'Получено';
+    window.open('https://t.me/example', '_blank');
+    addNotification('Бонус за подписку: +10 монет');
+    updateUI();
+    checkRankBonus();
+}
+
+function openAdminPanel() {
+    adminOpen = true;
+    document.getElementById('adminPanel').classList.add('open');
+    document.getElementById('chatOverlay').classList.toggle('active', chatOpen || menuOpen || notifOpen || adminOpen);
+    switchAdminTab('logs', document.querySelector('.admin-tab'));
+}
+
+function closeAdminPanel() {
+    adminOpen = false;
+    document.getElementById('adminPanel').classList.remove('open');
+    document.getElementById('chatOverlay').classList.toggle('active', chatOpen || menuOpen || notifOpen || adminOpen);
+}
+
+async function switchAdminTab(tab, btn) {
+    document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const c = document.getElementById('adminContent');
+    let html = '';
+
+    if (tab === 'logs') {
+        const res = await fetch(API + '/api/admin/transactions');
+        const tx = await res.json();
+        html = '<h4 style="color:var(--accent);margin-bottom:8px">Логи</h4>';
+        tx.forEach(t => { html += `<div style="font-size:9px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03)">${t.type} #${t.id} — ${t.amount} мон. — ${t.status} — ${t.created_at ? new Date(t.created_at).toLocaleString('ru-RU') : ''}</div>`; });
+        html += '<button class="modal-btn" style="margin-top:8px" onclick="clearLogs()">Очистить логи</button>';
+    } else if (tab === 'users') {
+        html = `<h4 style="color:var(--accent);margin-bottom:8px">Пользователи</h4>
+            <input type="text" id="adminUserId" placeholder="ID пользователя" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">
+            <div style="display:flex;gap:4px">
+                <button class="modal-btn" style="font-size:9px;padding:6px" onclick="adminBanUser()">Бан</button>
+                <button class="modal-btn" style="font-size:9px;padding:6px" onclick="adminUnbanUser()">Разбан</button>
+            </div>
+            <input type="number" id="adminBalanceAmt" placeholder="Сумма (+/-)" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin:4px 0">
+            <button class="modal-btn" style="font-size:9px;padding:6px" onclick="adminAdjustBalance()">Изменить баланс</button>`;
+    } else if (tab === 'requests') {
+        const res = await fetch(API + '/api/admin/transactions');
+        const tx = await res.json();
+        html = '<h4 style="color:var(--accent);margin-bottom:8px">Заявки</h4>';
+        tx.filter(t => t.status === 'pending' || t.status === 'processing').forEach(t => {
+            html += `<div style="font-size:9px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03)">${t.type} #${t.id} — ${t.amount} мон. — ${t.method || ''} — ${t.wallet || ''}
+                <div style="margin-top:3px;display:flex;gap:4px">
+                    <button class="modal-btn" style="font-size:8px;padding:4px" onclick="adminApproveTx(${t.id})">Подтвердить</button>
+                    <button class="modal-btn" style="font-size:8px;padding:4px;background:var(--red)" onclick="adminRejectTx(${t.id})">Отклонить</button>
+                </div></div>`;
+        });
+    } else if (tab === 'bots') {
+        const res = await fetch(API + '/api/admin/bots');
+        const bots = await res.json();
+        html = '<h4 style="color:var(--accent);margin-bottom:8px">Боты</h4>';
+        bots.forEach(b => {
+            html += `<div style="font-size:9px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03)">
+                <span style="background:${b.color};width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:4px"></span>
+                ${b.name} — ${b.min_bet}-${b.max_bet} мон. — ${b.rooms?.join(',')}
+                <button class="modal-btn" style="font-size:8px;padding:2px 6px;margin-left:4px" onclick="deleteBot(${b.id})">✕</button>
+            </div>`;
+        });
+        html += `<hr style="border-color:var(--border);margin:8px 0">
+            <input type="text" id="botName" placeholder="Имя" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">
+            <input type="text" id="botColor" placeholder="Цвет (#f87171)" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">
+            <input type="number" id="botMinBet" placeholder="Мин. ставка" style="width:48%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">
+            <input type="number" id="botMaxBet" placeholder="Макс. ставка" style="width:48%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">
+            <select id="botRooms" multiple style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">
+                <option value="bomj">Бомж</option><option value="classic">Классик</option><option value="major">Мажор</option><option value="hyena">Гиена</option>
+            </select>
+            <button class="modal-btn" style="font-size:9px;padding:6px" onclick="addBot()">Добавить бота</button>`;
+    } else if (tab === 'requisites') {
+        html = `<h4 style="color:var(--accent);margin-bottom:8px">Реквизиты</h4>
+            <select id="adminReqMethod" onchange="adminLoadRequisites()" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:6px">
+                <option value="sbp">СБП</option><option value="card">Карта</option><option value="ton">TON</option><option value="usdt">USDT</option>
+            </select>
+            <div id="adminReqFields"></div>
+            <button class="modal-btn" style="font-size:9px;padding:6px;margin-top:6px" onclick="adminSaveRequisites()">Сохранить</button>`;
+    } else if (tab === 'broadcast') {
+        html = `<h4 style="color:var(--accent);margin-bottom:8px">Рассылка</h4>
+            <textarea id="broadcastMsg" placeholder="Текст рассылки" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;height:60px;resize:vertical;margin-bottom:6px"></textarea>
+            <button class="modal-btn" style="font-size:9px;padding:6px" onclick="adminSendBroadcast()">Отправить</button>`;
+    }
+    c.innerHTML = html;
+    if (tab === 'requisites') adminLoadRequisites();
+}
+
+async function clearLogs() {
+    await fetch(API + '/api/admin/clear-logs', { method: 'POST' });
+    switchAdminTab('logs', document.querySelector('.admin-tab'));
+}
+
+async function adminBanUser() {
+    const uid = document.getElementById('adminUserId').value.trim();
+    if (!uid) return;
+    if (!adminList.includes(uid)) adminList.push(uid);
+    addNotification('Пользователь ' + uid + ' забанен');
+}
+
+async function adminUnbanUser() {
+    const uid = document.getElementById('adminUserId').value.trim();
+    if (!uid) return;
+    adminList = adminList.filter(a => a !== uid);
+    addNotification('Пользователь ' + uid + ' разбанен');
+}
+
+async function adminAdjustBalance() {
+    const uid = document.getElementById('adminUserId').value.trim();
+    const amt = parseFloat(document.getElementById('adminBalanceAmt').value);
+    if (!uid || isNaN(amt)) return;
+    await apiCall('/api/admin/adjust', { targetUserId: uid, amount: amt });
+    addNotification('Баланс изменён на ' + amt + ' монет');
+}
+
+async function adminApproveTx(id) {
+    await fetch(API + '/api/admin/requests/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'success' })
+    });
+    switchAdminTab('requests', document.querySelector('[onclick*="requests"]'));
+    addNotification('Транзакция #' + id + ' подтверждена');
+}
+
+async function adminRejectTx(id) {
+    await fetch(API + '/api/admin/requests/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'cancelled' })
+    });
+    switchAdminTab('requests', document.querySelector('[onclick*="requests"]'));
+    addNotification('Транзакция #' + id + ' отклонена');
+}
+
+function adminLoadRequisites() {
+    const m = document.getElementById('adminReqMethod').value;
+    const req = adminRequisites[m] || {};
+    const f = document.getElementById('adminReqFields');
+    if (m === 'sbp' || m === 'card') {
+        f.innerHTML = `<input type="text" id="adminReqNumber" value="${req.number || ''}" placeholder="Номер" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">
+            <input type="text" id="adminReqBank" value="${req.bank || ''}" placeholder="Банк" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">`;
+    } else {
+        f.innerHTML = `<input type="text" id="adminReqAddress" value="${req.address || ''}" placeholder="Адрес кошелька" style="width:100%;background:#0f0f1a;border:1px solid var(--border);color:#fff;padding:6px;border-radius:6px;font-size:10px;margin-bottom:4px">`;
+    }
+}
+
+function adminSaveRequisites() {
+    const m = document.getElementById('adminReqMethod').value;
+    if (m === 'sbp' || m === 'card') {
+        adminRequisites[m].number = document.getElementById('adminReqNumber')?.value || '';
+        adminRequisites[m].bank = document.getElementById('adminReqBank')?.value || '';
+    } else {
+        adminRequisites[m].address = document.getElementById('adminReqAddress')?.value || '';
+    }
+    addNotification('Реквизиты для ' + m.toUpperCase() + ' сохранены');
+}
+
+async function addBot() {
+    const name = document.getElementById('botName').value.trim();
+    const color = document.getElementById('botColor').value.trim();
+    const minBet = parseInt(document.getElementById('botMinBet').value);
+    const maxBet = parseInt(document.getElementById('botMaxBet').value);
+    const rooms = Array.from(document.getElementById('botRooms').selectedOptions).map(o => o.value);
+    if (!name || !color || !minBet || !maxBet) return;
+    await fetch(API + '/api/admin/bots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, color, avatar: '', min_bet: minBet, max_bet: maxBet, chance: 0.8, rooms })
+    });
+    switchAdminTab('bots', document.querySelector('[onclick*="bots"]'));
+    addNotification('Бот ' + name + ' добавлен');
+}
+
+async function deleteBot(id) {
+    await fetch(API + '/api/admin/bots/' + id, { method: 'DELETE' });
+    switchAdminTab('bots', document.querySelector('[onclick*="bots"]'));
+    addNotification('Бот удалён');
+}
+
+function adminSendBroadcast() {
+    const msg = document.getElementById('broadcastMsg').value.trim();
+    if (!msg) return;
+    addNotification('Рассылка: ' + msg);
+    document.getElementById('broadcastMsg').value = '';
+}
+
+async function initUser() {
+    const data = await apiCall('/api/init');
+    if (data.user) {
+        balance = data.user.balance;
+        totalBets = data.user.total_bets || 0;
+        totalWagered = data.user.total_wagered || 0;
+        totalDeposit = data.user.total_deposit || 0;
+        profileNick = data.user.nick || username;
+        profileAvatarInit = initName(profileNick);
+    }
+    if (data.rooms) {
+        for (const id in data.rooms) {
+            roomState[id] = data.rooms[id];
+            if (data.rooms[id].lastWinner) onNewWinner(id, data.rooms[id].lastWinner);
+        }
+    }
+    updateUI();
+    updateProfileUI();
+}
+
+initUser();
+fetchChatMessages();
+setInterval(fetchRooms, 5000);
+setInterval(fetchChatMessages, 3000);
+setInterval(checkRankBonus, 10000);
+
+document.getElementById('betAmount').addEventListener('keydown', e => { if (e.key === 'Enter') placeBet(); });
+document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+document.getElementById('promoInput').addEventListener('keydown', e => { if (e.key === 'Enter') startPromoCaptcha(); });
+document.getElementById('captchaAnswer').addEventListener('keydown', e => { if (e.key === 'Enter') submitCaptcha(); });
+document.getElementById('nickModalInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveNickname(); });
+document.getElementById('chatMessages').addEventListener('scroll', updateChatScrollBtn);
+</script>
+</body>
+</html>
